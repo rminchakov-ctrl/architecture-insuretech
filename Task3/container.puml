@@ -1,0 +1,56 @@
+@startuml Container
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+title Диаграмма контейнеров: Предлагаемое асинхронное решение
+
+Person(admin, "Администратор", "Настраивает и управляет системой")
+
+System_Boundary(platform, "Платформа InsureTech") {
+    Container(aggregator, "ins-product-aggregator", "Go", "Единый источник истины о страховых продуктах")
+    ContainerDb(aggregator_db, "Product Database", "PostgreSQL", "Хранилище информации о продуктах и тарифах")
+    
+    Container(core_app, "core-app", "Go", "Основной сервис приложения")
+    ContainerDb(core_cache, "Local Product Cache", "Redis", "Локальный кэш продуктов")
+    
+    Container(settlement, "ins-comp-settlement", "Go", "Сервис расчета страховых возмещений")
+    ContainerDb(settle_cache, "Local Product Cache", "Redis", "Локальный кэш продуктов")
+    
+    Container(kafka, "Kafka Broker", "Apache Kafka", "Брокер сообщений для асинхронной коммуникации")
+    
+    Container(gateway1, "Gateway Adapter 1", "Go", "Адаптер для Страховой компании 1")
+    Container(gateway2, "Gateway Adapter 2", "Go", "Адаптер для Страховой компании 2")
+    Container(gatewayN, "Gateway Adapter N", "Go", "Адаптер для Страховой компании N")
+}
+
+System_Ext(insurance1, "Страховая компания 1", "REST API", "Внешний API страховой компании")
+System_Ext(insurance2, "Страховая компания 2", "REST API", "Внешний API страховой компании")
+System_Ext(insuranceN, "Страховая компания N", "REST API", "Внешний API страховой компании")
+
+Rel(gateway1, insurance1, "Опрос по расписанию", "REST/HTTPS")
+Rel(gateway2, insurance2, "Опрос по расписанию", "REST/HTTPS")
+Rel(gatewayN, insuranceN, "Опрос по расписанию", "REST/HTTPS")
+
+Rel(gateway1, kafka, "Публикует продукты", "Kafka Protocol")
+Rel(gateway2, kafka, "Публикует продукты", "Kafka Protocol")
+Rel(gatewayN, kafka, "Публикует продукты", "Kafka Protocol")
+
+Rel(aggregator, kafka, "Читает сообщения", "Kafka Protocol")
+Rel(aggregator, aggregator_db, "Чтение/запись", "JDBC")
+
+Rel(core_app, aggregator, "Запрашивает продукты", "REST/HTTPS")
+Rel(settlement, aggregator, "Запрашивает продукты", "REST/HTTPS")
+
+Rel(core_app, core_cache, "Чтение/запись", "Redis Protocol")
+Rel(settlement, settle_cache, "Чтение/запись", "Redis Protocol")
+
+Rel(settlement, core_app, "Получает записи о страховках", "REST/HTTPS")
+
+Rel(admin, aggregator, "Управляет конфигурацией", "HTTPS")
+Rel(admin, kafka, "Мониторинг и управление", "JMX/CLI")
+Rel(admin, gateway1, "Настраивает расписание", "HTTPS")
+Rel(admin, gateway2, "Настраивает расписание", "HTTPS")
+Rel(admin, gatewayN, "Настраивает расписание", "HTTPS")
+
+Rel(aggregator, kafka, "Публикует уведомления об обновлениях", "Kafka Protocol")
+
+@enduml
