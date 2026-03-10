@@ -1,4 +1,4 @@
-@startuml Container
+@startuml Предлагаемое асинхронное решение
 !include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
 
 title Диаграмма контейнеров: Предлагаемое асинхронное решение
@@ -6,11 +6,11 @@ title Диаграмма контейнеров: Предлагаемое аси
 Person(admin, "Администратор", "Настраивает и управляет системой")
 
 System_Boundary(platform, "Платформа InsureTech") {
-    Container(aggregator, "ins-product-aggregator", "Go", "Единый источник истины о страховых продуктах")
-    ContainerDb(aggregator_db, "Product Database", "PostgreSQL", "Хранилище информации о продуктах и тарифах")
-    
     Container(core_app, "core-app", "Go", "Основной сервис приложения")
     ContainerDb(core_cache, "Local Product Cache", "Redis", "Локальный кэш продуктов")
+
+    Container(aggregator, "ins-product-aggregator", "Go", "Единый источник истины о страховых продуктах")
+    ContainerDb(aggregator_db, "Product Database", "PostgreSQL", "Хранилище информации о продуктах и тарифах")
     
     Container(settlement, "ins-comp-settlement", "Go", "Сервис расчета страховых возмещений")
     ContainerDb(settle_cache, "Local Product Cache", "Redis", "Локальный кэш продуктов")
@@ -45,11 +45,11 @@ Rel(settlement, settle_cache, "Чтение/запись", "Redis Protocol")
 
 Rel(settlement, core_app, "Получает записи о страховках", "REST/HTTPS")
 
-Rel(admin, aggregator, "Управляет конфигурацией", "HTTPS")
-Rel(admin, kafka, "Мониторинг и управление", "JMX/CLI")
-Rel(admin, gateway1, "Настраивает расписание", "HTTPS")
-Rel(admin, gateway2, "Настраивает расписание", "HTTPS")
-Rel(admin, gatewayN, "Настраивает расписание", "HTTPS")
+Rel(admin, aggregator, "Управление конфигурацией", "HTTPS")
+Rel(admin, kafka, "Мониторинг", "JMX/CLI")
+Rel(admin, gateway1, "Настройка", "HTTPS")
+Rel(admin, gateway2, "Настройка", "HTTPS")
+Rel(admin, gatewayN, "Настройка", "HTTPS")
 
 Rel(aggregator, kafka, "Публикует уведомления об обновлениях", "Kafka Protocol")
 

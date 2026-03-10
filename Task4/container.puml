@@ -1,0 +1,76 @@
+@startuml Решение для онлайн-оформления ОСАГО
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+title Диаграмма контейнеров: Решение для онлайн-оформления ОСАГО
+
+Person(admin, "Администратор", "Настраивает и управляет системой")
+Person(client, "Клиент", "Просматривает продукты и оформляет полисы ОСАГО")
+
+System_Boundary(platform, "Платформа InsureTech") {
+    Container(web_app, "Веб-приложение", "JavaScript/React", "Единый интерфейс для продуктов и оформления")
+    
+    Container(core_app, "core-app", "Go", "Основной сервис приложения")
+    ContainerDb(core_cache, "Local Product Cache", "Redis", "Локальный кэш продуктов")
+    
+    Container(aggregator, "ins-product-aggregator", "Go", "ЕДИНЫЙ АГРЕГАТОР: продукты, тарифы, предложения ОСАГО")
+    ContainerDb(aggregator_db, "Product Registry", "PostgreSQL", "Хранилище всех продуктов, тарифов и заявок")
+    
+    Container(gateway1, "Gateway Adapter 1", "Go", "Адаптер для Страховой компании 1")
+    Container(gateway2, "Gateway Adapter 2", "Go", "Адаптер для Страховой компании 2")
+    Container(gatewayN, "Gateway Adapter N", "Go", "Адаптер для Страховой компании N")
+    
+    Container(kafka, "Брокер сообщений", "Apache Kafka", "Центральная шина событий")
+}
+
+System_Ext(insurance1, "Страховая компания 1", "REST API", "API продуктов и ОСАГО")
+System_Ext(insurance2, "Страховая компания 2", "REST API", "API продуктов и ОСАГО")
+System_Ext(insuranceN, "Страховая компания N", "REST API", "API продуктов и ОСАГО")
+
+Rel(admin, aggregator, "Управление конфигурацией", "HTTPS")
+Rel(admin, kafka, "Мониторинг", "JMX/CLI")
+Rel(admin, gateway1, "Настройка", "HTTPS")
+Rel(admin, gateway2, "Настройка", "HTTPS")
+Rel(admin, gatewayN, "Настройка", "HTTPS")
+
+Rel(gateway1, insurance1, "Опрос продуктов по расписанию", "REST/HTTPS")
+Rel(gateway2, insurance2, "Опрос продуктов по расписанию", "REST/HTTPS")
+Rel(gatewayN, insuranceN, "Опрос продуктов по расписанию", "REST/HTTPS")
+
+Rel(gateway1, kafka, "Публикует продукты", "Kafka Protocol")
+Rel(gateway2, kafka, "Публикует продукты", "Kafka Protocol")
+Rel(gatewayN, kafka, "Публикует продукты", "Kafka Protocol")
+
+Rel(aggregator, kafka, "Читает сообщения", "Kafka Protocol")
+Rel(aggregator, aggregator_db, "Чтение/запись", "JDBC")
+
+Rel(web_app, core_app, "Запрос списка продуктов", "REST/HTTPS")
+Rel(core_app, aggregator, "Получение актуальных продуктов", "REST/HTTPS")
+Rel(core_app, core_cache, "Кэширование продуктов", "Redis Protocol")
+Rel(settlement, aggregator, "Запрашивает продукты", "REST/HTTPS")
+Rel(settlement, settle_cache, "Чтение/запись", "Redis Protocol")
+
+' Поток ОСАГО
+Rel(client, web_app, "Оформление полиса ОСАГО", "HTTPS")
+Rel(web_app, core_app, "Создание заявки + подписка", "REST/HTTPS + WebSocket/SSE")
+
+Rel(core_app, aggregator, "Инициация запроса предложений", "REST/HTTPS")
+Rel(aggregator, kafka, "Запрос ко всем шлюзам", "Kafka Protocol\ntopic: osago.quotation.request")
+
+Rel(gateway1, kafka, "Команда на расчет ОСАГО", "Kafka Protocol")
+Rel(gateway2, kafka, "Команда на расчет ОСАГО", "Kafka Protocol")
+Rel(gatewayN, kafka, "Команда на расчет ОСАГО", "Kafka Protocol")
+
+Rel(gateway1, insurance1, "Запрос предложения ОСАГО", "REST/HTTPS\n+ Timeout 55s")
+Rel(gateway2, insurance2, "Запрос предложения ОСАГО", "REST/HTTPS\n+ Timeout 55s")
+Rel(gatewayN, insuranceN, "Запрос предложения ОСАГО", "REST/HTTPS\n+ Timeout 55s")
+
+Rel(gateway1, kafka, "Ответ по ОСАГО", "Kafka Protocol\ntopic: osago.quotation.response")
+Rel(gateway2, kafka, "Ответ по ОСАГО", "Kafka Protocol")
+Rel(gatewayN, kafka, "Ответ по ОСАГО", "Kafka Protocol")
+
+Rel(aggregator, kafka, "Агрегация ответов", "Kafka Protocol\ntopic: osago.quotation.progress")
+Rel(core_app, kafka, "Обновление состояния заявки", "Kafka Protocol")
+
+Rel(core_app, web_app, "Push-уведомление клиенту", "WebSocket/SSE")
+
+@enduml
