@@ -1,0 +1,44 @@
+kubectl get hpa test-app-hpa-rps -w
+NAME               REFERENCE             TARGETS   MINPODS   MAXPODS   REPLICAS   AGE
+test-app-hpa-rps   Deployment/test-app   0/50      1         10        1          13m
+test-app-hpa-rps   Deployment/test-app   2199m/50   1         10        1          16m
+test-app-hpa-rps   Deployment/test-app   28711m/50   1         10        1          16m
+test-app-hpa-rps   Deployment/test-app   62266m/50   1         10        1          16m
+test-app-hpa-rps   Deployment/test-app   93355m/50   1         10        2          16m
+test-app-hpa-rps   Deployment/test-app   50122m/50   1         10        2          17m
+test-app-hpa-rps   Deployment/test-app   50255m/50   1         10        2          17m
+test-app-hpa-rps   Deployment/test-app   50300m/50   1         10        2          17m
+test-app-hpa-rps   Deployment/test-app   50022m/50   1         10        2          17m
+test-app-hpa-rps   Deployment/test-app   49699m/50   1         10        2          18m
+test-app-hpa-rps   Deployment/test-app   49811m/50   1         10        2          18m
+test-app-hpa-rps   Deployment/test-app   49822m/50   1         10        2          18m
+test-app-hpa-rps   Deployment/test-app   49922m/50   1         10        2          18m
+test-app-hpa-rps   Deployment/test-app   49866m/50   1         10        2          19m
+test-app-hpa-rps   Deployment/test-app   39822m/50   1         10        2          19m
+test-app-hpa-rps   Deployment/test-app   23133m/50   1         10        2          19m
+test-app-hpa-rps   Deployment/test-app   6388m/50    1         10        2          19m
+test-app-hpa-rps   Deployment/test-app   0/50        1         10        2          20m
+
+kubectl describe hpa test-app-hpa-rps
+Name:                                  test-app-hpa-rps
+Namespace:                             default
+Labels:                                <none>
+Annotations:                           <none>
+CreationTimestamp:                     Wed, 11 Mar 2026 21:17:39 +0000
+Reference:                             Deployment/test-app
+Metrics:                               ( current / target )
+  "http_requests_per_second" on pods:  0 / 50
+Min replicas:                          1
+Max replicas:                          10
+Deployment pods:                       2 current / 2 desired
+Conditions:
+  Type            Status  Reason               Message
+  ----            ------  ------               -------
+  AbleToScale     True    ScaleDownStabilized  recent recommendations were higher than current one, applying the highest recent recommendation
+  ScalingActive   True    ValidMetricFound     the HPA was able to successfully calculate a replica count from pods metric http_requests_per_second
+  ScalingLimited  False   DesiredWithinRange   the desired count is within the acceptable range
+Events:
+  Type    Reason             Age                  From                       Message
+  ----    ------             ----                 ----                       -------
+  Normal  SuccessfulRescale  10m                  horizontal-pod-autoscaler  New size: 1; reason: All metrics below target
+  Normal  SuccessfulRescale  6m45s (x2 over 17m)  horizontal-pod-autoscaler  New size: 2; reason: pods metric http_requests_per_second above target

@@ -47,7 +47,7 @@ kubectl port-forward svc/test-app-service 8080:80
 
 # грузим
 source locust-env/bin/activate
-locust -f locustfile.py --host=http://localhost:8080 --headless -u 300 -r 20 -t 2m
+locust -f locustfile.py --host=http://localhost:8080 --headless -u 300 -r 20 -t 5m
 
 ## desc
 kubectl describe hpa test-app-hpa -n default
@@ -89,6 +89,8 @@ kubectl get --raw "/apis/custom.metrics.k8s.io/v1beta1" | jq .
         "resources": []
     }
 ```
+
+kubectl get --raw "/apis/custom.metrics.k8s.io/v1beta1/namespaces/default/pods/*/rpc_requests_per_second"
 
 # следим за HPA
 kubectl get hpa test-app-hpa-rps -w

@@ -49,6 +49,8 @@ locust -f locustfile.py --host=http://localhost:8080 --headless -u 300 -r 20 -t 
 
 ## RPC
 
+kubectl delete hpa test-app-hpa -n default
+
 ``` bash
 source locust-env/bin/activate
 locust -f locustfile.py --host=http://localhost:8080 --headless -u 300 -r 20 -t 5m
