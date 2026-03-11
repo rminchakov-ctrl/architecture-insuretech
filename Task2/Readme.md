@@ -37,12 +37,12 @@ kubectl get hpa test-app-hpa-rps -w
 
 # Тестирование
 
-## Невысокая нагрузка
-Если locust -f locustfile.py --host=http://localhost:8080 --headless -u 100 -r 100 -t 10m
-Нагрузка на памят не растет - 42%
+## Память
 
-## Высокая нагрузка
-Если locust -f locustfile.py --host=http://localhost:8080 --headless -u 1000 -r 100 -t 10m
-Виртуалка виснет - sudo reboot :(
-После этого - pod-desc.txt
-Ну и после - переустановка машины - vm.md
+``` bash
+source locust-env/bin/activate
+locust -f locustfile.py --host=http://localhost:8080 --headless -u 300 -r 20 -t 2m
+```
+[locust](/logs/locust-log.txt)
+
+[Результат](/logs/mem-hpa-log.txt)
