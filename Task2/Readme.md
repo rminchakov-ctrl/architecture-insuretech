@@ -41,8 +41,17 @@ kubectl get hpa test-app-hpa-rps -w
 
 ``` bash
 source locust-env/bin/activate
-locust -f locustfile.py --host=http://localhost:8080 --headless -u 300 -r 20 -t 2m
+locust -f locustfile.py --host=http://localhost:8080 --headless -u 300 -r 20 -t 5m
 ```
-[locust](/logs/locust-log.txt)
+[locust](/logs/mem-locust-log.txt)
 
 [Результат](/logs/mem-hpa-log.txt)
+
+## RPC
+
+``` bash
+source locust-env/bin/activate
+locust -f locustfile.py --host=http://localhost:8080 --headless -u 300 -r 20 -t 5m
+```
+[locust](/logs/rpc-locust-log.txt)
+[Результат](/logs/rpc-hpa-log.txt)

@@ -63,12 +63,32 @@ kubectl get events --field-selector involvedObject.name=test-app-hpa --sort-by=.
 kubectl logs -n kube-system deployment/metrics-server
 
 # prometeus
-kubectl apply -f 01-prometheus.yaml
-kubectl apply -f 02-prometheus-adapter.yaml
-kubectl apply -f 03-hpa-rps.yaml
+kubectl apply -f ./prometeus/01-prometheus.yaml
+    *namespace/monitoring created*
+    *deployment.apps/prometheus created*
+    *service/prometheus created*
+    *configmap/prometheus-config created*
+kubectl apply -f ./prometeus/02-prometheus-adapter.yaml
+    *deployment.apps/prometheus-adapter created*
+    *service/prometheus-adapter created*
+    *configmap/prometheus-adapter-config created*
+    *rolebinding.rbac.authorization.k8s.io/prometheus-adapter-auth-reader created*
+    *apiservice.apiregistration.k8s.io/v1beta1.custom.metrics.k8s.io created*
+    *clusterrolebinding.rbac.authorization.k8s.io/prometheus-adapter-resource-reader created*
+    *clusterrolebinding.rbac.authorization.k8s.io/prometheus-adapter-delegated-auth created*
+kubectl apply -f ./prometeus/03-hpa-rps.yaml
+    *horizontalpodautoscaler.autoscaling/test-app-hpa-rps created*
 
 # доступные метрики
 kubectl get --raw "/apis/custom.metrics.k8s.io/v1beta1" | jq .
+``` bash
+    {
+        "kind": "APIResourceList",
+        "apiVersion": "v1",
+        "groupVersion": "custom.metrics.k8s.io/v1beta1",
+        "resources": []
+    }
+```
 
 # следим за HPA
 kubectl get hpa test-app-hpa-rps -w
