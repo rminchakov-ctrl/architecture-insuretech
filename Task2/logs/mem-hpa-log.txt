@@ -1,0 +1,54 @@
+kubectl get hpa test-app-hpa -w
+NAME           REFERENCE             TARGETS           MINPODS   MAXPODS   REPLICAS   AGE
+test-app-hpa   Deployment/test-app   memory: 50%/60%   1         10        1          36m
+test-app-hpa   Deployment/test-app   memory: 50%/60%   1         10        1          36m
+test-app-hpa   Deployment/test-app   memory: 53%/60%   1         10        1          37m
+test-app-hpa   Deployment/test-app   memory: 53%/60%   1         10        1          38m
+test-app-hpa   Deployment/test-app   memory: 61%/60%   1         10        1          39m
+test-app-hpa   Deployment/test-app   memory: 83%/60%   1         10        1          40m
+test-app-hpa   Deployment/test-app   memory: 83%/60%   1         10        2          40m
+test-app-hpa   Deployment/test-app   memory: 48%/60%   1         10        2          41m
+test-app-hpa   Deployment/test-app   memory: 48%/60%   1         10        2          42m
+test-app-hpa   Deployment/test-app   memory: 48%/60%   1         10        2          43m
+test-app-hpa   Deployment/test-app   memory: 46%/60%   1         10        2          44m
+test-app-hpa   Deployment/test-app   memory: 34%/60%   1         10        2          47m
+test-app-hpa   Deployment/test-app   memory: 27%/60%   1         10        2          49m
+test-app-hpa   Deployment/test-app   memory: 23%/60%   1         10        2          51m
+test-app-hpa   Deployment/test-app   memory: 24%/60%   1         10        2          52m
+test-app-hpa   Deployment/test-app   memory: 23%/60%   1         10        2          53m
+test-app-hpa   Deployment/test-app   memory: 23%/60%   1         10        2          54m
+test-app-hpa   Deployment/test-app   memory: 37%/60%   1         10        1          54m
+test-app-hpa   Deployment/test-app   memory: 37%/60%   1         10        1          55m
+test-app-hpa   Deployment/test-app   memory: 37%/60%   1         10        1          56m
+test-app-hpa   Deployment/test-app   memory: 37%/60%   1         10        1          57m
+
+
+kubectl describe hpa test-app-hpa -n default
+Name:                                                     test-app-hpa
+Namespace:                                                default
+Labels:                                                   <none>
+Annotations:                                              <none>
+CreationTimestamp:                                        Wed, 11 Mar 2026 17:44:46 +0000
+Reference:                                                Deployment/test-app
+Metrics:                                                  ( current / target )
+  resource memory on pods  (as a percentage of request):  37% (6136Ki) / 60%
+Min replicas:                                             1
+Max replicas:                                             10
+Deployment pods:                                          1 current / 1 desired
+Conditions:
+  Type            Status  Reason              Message
+  ----            ------  ------              -------
+  AbleToScale     True    ReadyForNewScale    recommended size matches current size
+  ScalingActive   True    ValidMetricFound    the HPA was able to successfully calculate a replica count from memory resource utilization (percentage of request)
+  ScalingLimited  False   DesiredWithinRange  the desired count is within the acceptable range
+Events:
+  Type     Reason                        Age                  From                       Message
+  ----     ------                        ----                 ----                       -------
+  Normal   SuccessfulRescale             46m                  horizontal-pod-autoscaler  New size: 2; reason: memory resource utilization (percentage of request) above target
+  Warning  FailedComputeMetricsReplicas  41m (x20 over 58m)   horizontal-pod-autoscaler  invalid metrics (1 invalid out of 1), first error is: failed to get memory resource metric value: failed to get memory utilization: unable to get metrics for resource memory: no metrics returned from resource metrics API
+  Warning  FailedGetResourceMetric       40m (x21 over 58m)   horizontal-pod-autoscaler  failed to get memory utilization: unable to get metrics for resource memory: no metrics returned from resource metrics API
+  Normal   SuccessfulRescale             40m                  horizontal-pod-autoscaler  New size: 2; reason:
+  Warning  FailedGetResourceMetric       37m (x4 over 38m)    horizontal-pod-autoscaler  failed to get memory utilization: unable to get metrics for resource memory: unable to fetch metrics from resource metrics API: the server is currently unable to handle the request (get pods.metrics.k8s.io)
+  Warning  FailedComputeMetricsReplicas  37m (x4 over 38m)    horizontal-pod-autoscaler  invalid metrics (1 invalid out of 1), first error is: failed to get memory resource metric value: failed to get memory utilization: unable to get metrics for resource memory: unable to fetch metrics from resource metrics API: the server is currently unable to handle the request (get pods.metrics.k8s.io)
+  Normal   SuccessfulRescale             18m                  horizontal-pod-autoscaler  New size: 2; reason: memory resource utilization (percentage of request) above target
+  Normal   SuccessfulRescale             4m50s (x2 over 27m)  horizontal-pod-autoscaler  New size: 1; reason: All metrics below target

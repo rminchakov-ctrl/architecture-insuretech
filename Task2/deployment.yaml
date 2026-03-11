@@ -18,7 +18,11 @@ spec:
       - name: test-app
         image: ghcr.io/yandex-practicum/scaletestapp@sha256:eff20ae3ae2d596375f9ed6d612a78d149a35a66cd2907ea90d7175ca918c993
         resources:
+          requests:
+            memory: "16Mi"
+            cpu: "50m"
           limits:
-            memory: "3Mi"
+            memory: "16Mi"
+            cpu: "100m"
         ports:
         - containerPort: 8080
